@@ -6,7 +6,7 @@ export class Range {
   }
 }
 
-export interface FftFilterData {
+export interface FftFilterMessageEventData {
   audible_ranges: Range[];
   fft_size: number;
 }

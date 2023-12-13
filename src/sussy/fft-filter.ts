@@ -1,9 +1,9 @@
 import { transform, inverseTransform } from "./fft";
-import { Range, FftFilterData } from "./fft-filter-common";
+import { Range } from "./fft-filter-common";
 import { hann } from "./fft-windowing";
 import Queue from "./queue"
 
-const FFT_SIZE = 4096;
+const FFT_SIZE = 16384;
 
 if((FFT_SIZE & (FFT_SIZE - 1)) === (FFT_SIZE - 1) && FFT_SIZE > 1) {
   throw new Error(`FFT_SIZE=${FFT_SIZE} is not a power of two!`);
@@ -28,7 +28,7 @@ class FFtFilter extends AudioWorkletProcessor {
   constructor() {
     super();
     this.port.onmessage = (event: MessageEvent) => {
-      const fft_data = event.data as FftFilterData;
+      const fft_data = event.data as FftFilterMessageEventData;
       if(fft_data.audible_ranges) {
         this.audible_ranges = fft_data.audible_ranges;
       }
