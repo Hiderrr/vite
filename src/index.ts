@@ -1,4 +1,5 @@
 import workerPath from "./sussy/fft-filter?worker&url";
+import { Range } from "./sussy/fft-filter-common";
 import url from "../assets/sample.mp3"
 
 console.log(workerPath);
@@ -13,11 +14,11 @@ const startAudio = async (context: AudioContext) => {
 
   const source = context.createBufferSource();
   source.buffer = audioBuffer;
-  
-  const filter_node = new AudioWorkletNode(context, "fft-filter");
 
-  setInterval(() => filter_node.port.postMessage("ping"), 1000);
-  filter_node.port.onmessage = (e) => console.log(e.data);
+  const filter_node = new AudioWorkletNode(context, "fft-filter");
+  filter_node.port.postMessage({
+    audible_ranges: [ new Range(0, 1000), new Range(3000, 4000) ]
+  })
 
   source.connect(filter_node);
   filter_node.connect(context.destination);
@@ -25,16 +26,13 @@ const startAudio = async (context: AudioContext) => {
 
 };
 
-// A simplem onLoad handler. It also handles user gesture to unlock the audio
-// playback.
-
 window.addEventListener("load", async () => {
   const buttonEl = document.getElementById("button-start");
-  if(buttonEl != undefined) {
+  if (buttonEl != undefined) {
     buttonEl.addEventListener("click", async () => {
       await startAudio(audioContext);
       audioContext.resume();
       buttonEl.textContent = "Playing...";
     }, false);
-  }    
+  }
 });
