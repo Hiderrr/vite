@@ -1,4 +1,4 @@
-import workerPath from "./fft-filter?worker&url";
+import workerPath from "./sussy/fft-filter?worker&url";
 import url from "../assets/sample.mp3"
 
 console.log(workerPath);

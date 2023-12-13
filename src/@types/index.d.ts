@@ -4,3 +4,5 @@ declare module "*?worker&url" {
 }
 
 declare module "*.mp3";
+
+declare module "fft-js";
