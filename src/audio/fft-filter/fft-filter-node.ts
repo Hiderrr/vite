@@ -9,6 +9,10 @@ export default class FftFilterNode extends AudioWorkletNode {
     super(context, "fft-filter");
   }
 
+  clear_ranges() {
+    this.audible_ranges.splice(0, this.audible_ranges.length);
+  }
+
   add_audible_range(range: Range) {
     this.audible_ranges.push(range);
     this.port.postMessage({ audible_ranges: this.audible_ranges } as FftFilterMessageEventData);

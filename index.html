@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Webpack App</title>
-    </head>
-    <body>
-      <button id="button-start" style="height:200px;width:200px">Click me to play music</button>
-        <h1>Hello world123!</h1>
-        <h2>Tip: Check your console</h2>
-        <script type="module" src="./src/index.ts"></script>
-    </body>
-    
+
+<head>
+  <meta charset="utf-8" />
+  <title>Webpack App</title>
+</head>
+
+<body>
+  <button id="button-start" style="height:200px;width:200px">Click me to play music</button>
+  <form action="" id="range-form">
+    <h1>Audible frequencies</h1>
+    <input type="text" id="range-list" class="form-control" placeholder="a1-b1, a2-b2, ...">
+    <button type="submit">Update simulation</button>
+  </form>  
+  <h1>Hello world123!</h1>
+  <h2>Tip: Check your console</h2>
+  <script type="module" src="./src/index.ts"></script>
+</body>
+
 </html>

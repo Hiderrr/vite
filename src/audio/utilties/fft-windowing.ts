@@ -170,7 +170,7 @@ const windows = {
  */
 const applyWindowFunction = (
   data_array: Float64Array,
-  windowing_function: Function,
+  windowing_function: (n: number, points: number, alpha: number | undefined) => number,
   alpha?: number
 ) => {
   const datapoints = data_array.length;
@@ -223,5 +223,5 @@ export {
   blackman_harris,
   blackman_nuttall,
   flat_top,
-  WindowFunctionName,
+  type WindowFunctionName,
 };
