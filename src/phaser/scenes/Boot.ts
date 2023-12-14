@@ -6,8 +6,9 @@
  * start dealing with game specific logic.
  */
 export default class Boot extends Phaser.Scene {
+
     constructor () {
-        super('boot');
+      super('boot');
     }
 
     create (): void {

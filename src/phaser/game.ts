@@ -9,7 +9,7 @@ import { size } from './game.config';
 
 import Boot from './scenes/Boot';
 import Preloader from './scenes/Preloader';
-import Game from './scenes/Game';
+import AudioVis from './scenes/AudioVis';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -19,7 +19,7 @@ const config: Phaser.Types.Core.GameConfig = {
     scene: [
         Boot,
         Preloader,
-        Game
+        AudioVis
     ]
 };
 

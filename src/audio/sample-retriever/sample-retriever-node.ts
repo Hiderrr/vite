@@ -19,10 +19,6 @@ export default class SampleRetrieverNode extends AudioWorkletNode {
       }
     };
 
-    for(let i = 0; i < NUM_SAMPLES; i++) {
-      this.sample_buff.push(0);
-    }
-
   }
 
   static loadProcessor(context: AudioContext) {

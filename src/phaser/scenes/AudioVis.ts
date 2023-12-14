@@ -1,6 +1,8 @@
 import { Range } from "../../audio/fft-filter/fft-filter-common";
 import FftFilterNode from "../../audio/fft-filter/fft-filter-node"
-import SampleRetrieverNode from "../../audio/sample-retriever/sample-retriever-node";
+import SampleRetrieverNode, { NUM_SAMPLES } from "../../audio/sample-retriever/sample-retriever-node";
+import { transform } from "../../audio/utilties/fft";
+import { hann } from "../../audio/utilties/fft-windowing";
 import Queue from "../../audio/utilties/queue";
 import url from "/assets/sample.mp3"
 
@@ -9,17 +11,30 @@ export default class AudioVis extends Phaser.Scene {
   canvas!: HTMLCanvasElement;
   fft_filter!: FftFilterNode;
   sample_retriever!: SampleRetrieverNode;
+  fft_retriever!: SampleRetrieverNode;
   rectangles: Phaser.GameObjects.Rectangle[] = [];
+  rectangles2: Phaser.GameObjects.Rectangle[] = [];
   
   sample_rate!: number;
   samples_per_group!: number;
   group_count: number = 1000;
+  vis_fft_size: number = 1024;
+  graph_scale: number = 1;
   window_len_in_seconds: number = 10;
   groups! : Queue<number>;
 
   constructor () {
     super('game');
     this.groups = new Queue(this.group_count, true);
+  }
+
+  update_samples_per_group() {
+    this.samples_per_group = Math.max(1, Math.floor(this.sample_rate * this.window_len_in_seconds / this.group_count));
+  }
+
+  set_window_time_len(len: number) {
+    this.window_len_in_seconds = len;
+    this.update_samples_per_group();
   }
 
   create (): void {
@@ -45,22 +60,40 @@ export default class AudioVis extends Phaser.Scene {
 
       this.fft_filter = new FftFilterNode(context);
       this.sample_retriever = new SampleRetrieverNode(context);
+      this.fft_retriever = new SampleRetrieverNode(context);
 
       this.sample_rate = context.sampleRate;
       this.samples_per_group = Math.max(1, Math.floor(this.sample_rate * this.window_len_in_seconds / this.group_count));
 
       source.connect(this.fft_filter);
+      this.fft_filter.connect(context.destination);
       this.fft_filter.connect(this.sample_retriever);
-      this.sample_retriever.connect(context.destination);
+      this.fft_filter.connect(this.fft_retriever);
 
       for(let i = 0; i < this.group_count; i++) {
         this.rectangles.push(
           this.add.rectangle(
               i * this.canvas.width / this.group_count,
-              this.canvas.height / 2, 
+              this.canvas.height / 4, 
               this.canvas.width / this.group_count, 
               0, 
               0xffffff
+          )
+        );
+      }
+
+      for(let i = 0; i < NUM_SAMPLES; i++) {
+        this.sample_retriever.sample_buff.push(0);
+      }
+
+      for(let i = 0; i < this.vis_fft_size / 2; i++) {
+        this.rectangles2.push(
+          this.add.rectangle(
+              i * this.canvas.width / this.vis_fft_size * 2,
+              this.canvas.height / 2, 
+              this.canvas.width / this.vis_fft_size * 2, 
+              0, 
+              0xfffff0
           )
         );
       }
@@ -70,6 +103,8 @@ export default class AudioVis extends Phaser.Scene {
         e.preventDefault();
         const range_list = document.getElementById("range-list") as HTMLInputElement;
         const ranges = range_list.value.replace(/\s+/, "").split(",").filter(e => e != "").map(e => e.split("-").map(e => parseFloat(e)));
+        this.graph_scale = parseFloat((document.getElementById("graph-scale") as HTMLInputElement).value);
+        this.set_window_time_len(parseFloat((document.getElementById("time-window") as HTMLInputElement).value));
         this.fft_filter.clear_ranges();
         for(const range of ranges) {
           this.fft_filter.add_audible_range(new Range(range[0], range[1]));
@@ -93,7 +128,33 @@ export default class AudioVis extends Phaser.Scene {
 
   update (_time: number, _delta: number): void {
 
-    if(!this.sample_retriever) return;
+    if(!this.sample_retriever || !this.fft_retriever) return;
+
+    const real = new Float64Array(this.vis_fft_size);
+    const imag = new Float64Array(this.vis_fft_size).fill(0);
+
+    if(this.fft_retriever.sample_buff.getSize() >= this.vis_fft_size) {
+      let cnt = 0;
+      for(let i = 0; i < this.vis_fft_size; i++) {
+        real[cnt] = this.fft_retriever.sample_buff.pop();
+        if(++cnt > this.vis_fft_size) break;
+      }
+  
+      hann(real);
+      transform(real, imag);
+  
+      let maxim = 1;
+      for(let i = 1; i < this.vis_fft_size / 2; i++) {
+        maxim = Math.max(maxim, Math.sqrt(real[i]*real[i] + imag[i]*imag[i]));
+      }
+  
+      for(let i = 0; i < this.vis_fft_size / 2; i++) {
+        real[i] /= maxim, imag[i] /= maxim;
+        this.rectangles2[i].height = Math.sqrt(real[i]*real[i] + imag[i]*imag[i]) * this.canvas.height / 2;
+        this.rectangles2[i].y = this.canvas.height - this.rectangles2[i].height;
+        this.rectangles2[i].setOrigin(0, 0);
+      }
+    }
 
     while(this.sample_retriever.sample_buff.getSize() >= this.samples_per_group) {
       let sum = 0;
@@ -106,7 +167,7 @@ export default class AudioVis extends Phaser.Scene {
 
     let i = 0;
     for(const group of this.groups) {
-      this.rectangles[i].height = group * this.canvas.height / 2 / 1.25;
+      this.rectangles[i].height = group * this.canvas.height / 4 * this.graph_scale;
       this.rectangles[i].setOrigin(0, 0.5);
       i++;
     }

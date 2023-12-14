@@ -105,9 +105,11 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
 
     // writing output samples from `ready` buffer
     for(let i = 0; i < n; i++) {
-      const sample = (this.ready.isEmpty() ? 0 : this.ready.pop());
-      for(let channel = 0; channel < output_channels.length; channel++) {
-        output_channels[channel][i] = sample;
+      for(let k = 0; k < outputs.length; k++) {
+        const sample = (this.ready.isEmpty() ? 0 : this.ready.pop());
+        for(let channel = 0; channel < outputs[k].length; channel++) {
+          outputs[k][channel][i] = sample;
+        }
       }
     }
 
