@@ -1,10 +1,7 @@
 import { Range } from "../../audio/fft-filter/fft-filter-common";
 import FftFilterNode from "../../audio/fft-filter/fft-filter-node"
 import SampleRetrieverNode, { NUM_SAMPLES } from "../../audio/sample-retriever/sample-retriever-node";
-import { transform } from "../../audio/utilties/fft";
-import { hann } from "../../audio/utilties/fft-windowing";
 import Queue from "../../audio/utilties/queue";
-import url from "/assets/sample.mp3"
 
 export default class AudioVis extends Phaser.Scene {
 
@@ -18,10 +15,11 @@ export default class AudioVis extends Phaser.Scene {
   sample_rate!: number;
   samples_per_group!: number;
   group_count: number = 1000;
-  vis_fft_size: number = 1024;
+  vis_fft_size: number = 2048;
   graph_scale: number = 1;
   window_len_in_seconds: number = 10;
   groups! : Queue<number>;
+  filename: string = "sample.mp3";
 
   constructor () {
     super('game');
@@ -51,7 +49,7 @@ export default class AudioVis extends Phaser.Scene {
       await FftFilterNode.loadProcessor(context);
       await SampleRetrieverNode.loadProcessor(context);
 
-      const audioBuffer = await fetch(url)
+      const audioBuffer = await fetch("/assets/" + this.filename)
         .then(res => res.arrayBuffer())
         .then(buffer => context.decodeAudioData(buffer));
 
@@ -103,6 +101,7 @@ export default class AudioVis extends Phaser.Scene {
         e.preventDefault();
         const range_list = document.getElementById("range-list") as HTMLInputElement;
         const ranges = range_list.value.replace(/\s+/, "").split(",").filter(e => e != "").map(e => e.split("-").map(e => parseFloat(e)));
+        this.filename = (document.getElementById("file-name") as HTMLInputElement).value;
         this.graph_scale = parseFloat((document.getElementById("graph-scale") as HTMLInputElement).value);
         this.set_window_time_len(parseFloat((document.getElementById("time-window") as HTMLInputElement).value));
         this.fft_filter.clear_ranges();
@@ -128,29 +127,18 @@ export default class AudioVis extends Phaser.Scene {
 
   update (_time: number, _delta: number): void {
 
-    if(!this.sample_retriever || !this.fft_retriever) return;
+    if(!this.sample_retriever) return;
 
-    const real = new Float64Array(this.vis_fft_size);
-    const imag = new Float64Array(this.vis_fft_size).fill(0);
+    const real = this.fft_filter.real;
+    const imag = this.fft_filter.imag;
 
-    if(this.fft_retriever.sample_buff.getSize() >= this.vis_fft_size) {
-      let cnt = 0;
-      for(let i = 0; i < this.vis_fft_size; i++) {
-        real[cnt] = this.fft_retriever.sample_buff.pop();
-        if(++cnt > this.vis_fft_size) break;
-      }
-  
-      hann(real);
-      transform(real, imag);
-  
-      let maxim = 1;
+    if(real && imag) {
+      let maxim = Math.sqrt(real[0]*real[0] + imag[0]*imag[0]);
       for(let i = 1; i < this.vis_fft_size / 2; i++) {
         maxim = Math.max(maxim, Math.sqrt(real[i]*real[i] + imag[i]*imag[i]));
       }
-  
       for(let i = 0; i < this.vis_fft_size / 2; i++) {
-        real[i] /= maxim, imag[i] /= maxim;
-        this.rectangles2[i].height = Math.sqrt(real[i]*real[i] + imag[i]*imag[i]) * this.canvas.height / 2;
+        this.rectangles2[i].height = Math.sqrt(real[i]*real[i] + imag[i]*imag[i]) * this.canvas.height / maxim / 2;
         this.rectangles2[i].y = this.canvas.height - this.rectangles2[i].height;
         this.rectangles2[i].setOrigin(0, 0);
       }

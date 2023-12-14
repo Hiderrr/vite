@@ -3,7 +3,7 @@ import { Range, FftFilterMessageEventData } from "./fft-filter-common";
 import { hann } from "../utilties/fft-windowing";
 import Queue from "../utilties/queue"
 
-const FFT_SIZE = 16384;
+const FFT_SIZE = 2048;
 
 if((FFT_SIZE & (FFT_SIZE - 1)) === (FFT_SIZE - 1) && FFT_SIZE > 1) {
   throw new Error(`FFT_SIZE=${FFT_SIZE} is not a power of two!`);
@@ -18,6 +18,8 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
   real = new Float64Array(FFT_SIZE);
   imag = new Float64Array(FFT_SIZE).fill(0);
   last_iteration = new Float64Array(FFT_SIZE / 2).fill(0);
+
+  prev_time: number = 0;
 
   // buffer of samples waiting for fft
   buff = new Queue<number>(5 * FFT_SIZE, true); // big max size limit, so that I don't have to think
@@ -38,7 +40,7 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
   process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>) {
 
     // treat input signal as mono (it's just easier lmao)
-    const input_channel = inputs[0][0], output_channels = outputs[0];
+    const input_channel = inputs[0][0];
     const n = input_channel.length;
 
     // appennd new samples to buffer
@@ -68,6 +70,11 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
 
       // performing fft converting this.real and this.imag from time domain into frequnecy domain
       transform(this.real, this.imag);
+
+      if(currentTime - this.prev_time > 1 / 30) {
+        this.port.postMessage({ real: this.real, imag: this.imag });
+        this.prev_time = currentTime;
+      }
 
       // filtering unwanted frequencies
       for(let i = 0; i < FFT_SIZE; i++) {

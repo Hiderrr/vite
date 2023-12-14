@@ -4,9 +4,15 @@ import workerUrl from "./fft-filter-processor?worker&url"
 export default class FftFilterNode extends AudioWorkletNode {
 
   audible_ranges: Range[] = [];
+  real!: Float64Array;
+  imag!: Float64Array;
 
   constructor(context: AudioContext) {
     super(context, "fft-filter");
+    this.port.onmessage = (e) => {
+      this.real = e.data.real;
+      this.imag = e.data.imag;
+    };
   }
 
   clear_ranges() {
