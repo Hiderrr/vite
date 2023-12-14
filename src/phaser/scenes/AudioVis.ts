@@ -19,7 +19,7 @@ export default class AudioVis extends Phaser.Scene {
   graph_scale: number = 1;
   window_len_in_seconds: number = 10;
   groups! : Queue<number>;
-  filename: string = "sample.mp3";
+  filename: string = "sample-wodospady.mp3";
 
   constructor () {
     super('game');

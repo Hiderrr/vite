@@ -71,11 +71,6 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
       // performing fft converting this.real and this.imag from time domain into frequnecy domain
       transform(this.real, this.imag);
 
-      if(currentTime - this.prev_time > 1 / 30) {
-        this.port.postMessage({ real: this.real, imag: this.imag });
-        this.prev_time = currentTime;
-      }
-
       // filtering unwanted frequencies
       for(let i = 0; i < FFT_SIZE; i++) {
 
@@ -92,6 +87,11 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
           this.real[i] = this.imag[i] = 0;
         }
 
+      }
+
+      if(currentTime - this.prev_time > 1 / 30) {
+        this.port.postMessage({ real: this.real, imag: this.imag });
+        this.prev_time = currentTime;
       }
       
       // performing inverse fft

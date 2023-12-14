@@ -10,5 +10,5 @@ export default defineConfig({
   build: {
     target: 'esnext'
   },
-  base: "./"
+  base: "/vite/"
 })
