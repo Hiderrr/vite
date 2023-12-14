@@ -1,35 +1,16 @@
-import workerPath from "./sussy/fft-filter?worker&url";
-import { FftFilterMessageEventData, Range } from "./sussy/fft-filter-common";
-import url from "../assets/sample.mp3"
-
-class FftFilterNode extends AudioWorkletNode {
-
-  audible_ranges: Range[] = [];
-
-  constructor(context: AudioContext) {
-    super(context, "fft-filter");
-  }
-
-  add_audible_range(range: Range) {
-    this.audible_ranges.push(range);
-    this.port.postMessage({ audible_ranges: this.audible_ranges } as FftFilterMessageEventData);
-  }
-
-  delete_audible_range(index: number) {
-    if(this.audible_ranges.length <= index) {
-      throw new Error(`Index ${index} out of bound!`);
-    }
-    this.audible_ranges.splice(index, 1);
-    this.port.postMessage({ audible_ranges: this.audible_ranges } as FftFilterMessageEventData);
-  }
-
-}
+import start_game from "./phaser/game";
+import FftFilterNode from "./audio/fft-filter/fft-filter-node"
+import url from "/assets/sample.mp3"
+import FftAnalyserNode from "./audio/fft-analyser/fft-analyser-node";
+start_game();
 
 const audioContext = new AudioContext();
 
 const startAudio = async (context: AudioContext) => {
 
-  await context.audioWorklet.addModule(workerPath)
+  await FftFilterNode.loadProcessor(context);
+  await FftAnalyserNode.loadProcessor(context);
+
   const audioBuffer = await fetch(url)
     .then(res => res.arrayBuffer())
     .then(buffer => context.decodeAudioData(buffer));
@@ -37,20 +18,12 @@ const startAudio = async (context: AudioContext) => {
   const source = context.createBufferSource();
   source.buffer = audioBuffer;
 
-  const filter_node = new FftFilterNode(context);
-  
-  // low pass automation
-  filter_node.add_audible_range(new Range(-1, -1));
-  function f(x: number) {
-    filter_node.delete_audible_range(0);
-    filter_node.add_audible_range(new Range(0, x));
-    x -= 100;
-    setTimeout(f, 100, x);
-  }
-  f(11050);
+  const fft_filter = new FftFilterNode(context);
+  const fft_analyser = new FftAnalyserNode(context);
 
-  source.connect(filter_node);
-  filter_node.connect(context.destination);
+  source.connect(fft_filter);
+  fft_filter.connect(fft_analyser);
+  fft_analyser.connect(context.destination);
   source.start();
 
 };

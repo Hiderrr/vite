@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/audioworklet": "^0.0.52",
+    "@types/stats": "^0.16.30",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
@@ -22,6 +23,8 @@
   },
   "dependencies": {
     "fft-js": "^0.0.12",
-    "npm": "^10.2.5"
+    "npm": "^10.2.5",
+    "phaser": "^3.70.0",
+    "stats.js": "^0.17.0"
   }
 }

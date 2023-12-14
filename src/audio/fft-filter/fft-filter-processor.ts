@@ -1,5 +1,5 @@
 import { transform, inverseTransform } from "./fft";
-import { Range } from "./fft-filter-common";
+import { Range, FftFilterMessageEventData } from "./fft-filter-common";
 import { hann } from "./fft-windowing";
 import Queue from "./queue"
 
@@ -38,12 +38,12 @@ class FFtFilter extends AudioWorkletProcessor {
   process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>) {
 
     // treat input signal as mono (it's just easier lmao)
-    const samples_in = inputs[0][0], output = outputs[0];
-    const n = samples_in.length;
+    const input_channel = inputs[0][0], output_channels = outputs[0];
+    const n = input_channel.length;
 
     // appennd new samples to buffer
     for(let i = 0; i < n; i++) {
-      this.buff.push(samples_in[i]);
+      this.buff.push(input_channel[i]);
     }
  
     // if we got enough samples buffered, we can do an FFT
@@ -106,12 +106,12 @@ class FFtFilter extends AudioWorkletProcessor {
     // writing output samples from `ready` buffer
     for(let i = 0; i < n; i++) {
       const sample = (this.ready.isEmpty() ? 0 : this.ready.pop());
-      for(let channel = 0; channel < output.length; channel++) {
-        output[channel][i] = sample;
+      for(let channel = 0; channel < output_channels.length; channel++) {
+        output_channels[channel][i] = sample;
       }
     }
 
-    return true;
+    return false;
 
   }
 
