@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<title>Waves</title>
+		<meta charset="UTF-8">
+
+  <meta charset="utf-8" />
+  <title>Simulation</title>
+  <style>
+    input[type="text"] {
+      width: max-content;
+    }
+  </style>
+		<script type="module" crossorigin src="/vite/assets/index-19wh_T0W.js"></script>
+		<link rel="stylesheet" crossorigin href="/vite/assets/index-aIaNBKPs.css">
+	</head>
+	<body>
+		<h1>Transverse and longitual waves</h1>
+		<p>
+			Transverse and longitudinal waves are two fundamental types of mechanical waves that propagate through a medium, such as a solid, liquid, or gas.
+			The distinction between them is based on the direction of particle oscillation relative to the direction of wave propagation.
+		</p>
+		<h2>Transverse waves</h2>
+		<p>In transverse waves, the particles of the medium vibrate perpendicular to the direction of the wave.<br>
+		Examples: Light waves, electromagnetic waves, and seismic S-waves (secondary or shear waves)</p>
+		<h2>Longitudal waves</h2>
+		<p>In longitudinal waves, the particles of the medium vibrate parallel to the direction of the wave.<br>
+		Examples: Sound waves and seismic P-waves (primary or compressional waves) are examples of longitudinal waves.</p>
+		<h1>Wave properties</h1>
+		<h2>Frequency and period</h2>
+		<p>
+			Frequency&nbsp;(f) is the number of cycles of a wave occuring in one second.
+			It's measured in Hertz&nbsp;(Hz). In sound, perceive this as a change of the sound's pitch.
+			The higher the frequency, the higher the pitch.
+			If the frequency doubles, we will hear the sound an octave higher.<br>
+			Period&nbsp;(T) is inversed frequency - it describes length of one period, in seconds (s).
+			The longer the period, the lower the pitch.
+		</p>
+		<h2>Amplitude</h2>
+		<p>
+			Amplitude&nbsp;(A) is the largest displacement of the particles from the rest position.
+			In sound perceive that as a change of the sound's loudness. The larger the amplitude, the louder the sound. It is measured in decibels&nbsp;(dB),
+			however different units describing displacement or pressure can be used for other types of waves.
+		</p>
+		<h2>Wavelength</h2>
+		<p>
+			Wavelength&nbsp;(λ) describes the distance between two corresponding points of a consecutive cycles. It is measured in meters&nbsp;(m).
+			It is directly proportional to the period and inversely proportional to frequency.
+		</p>
+		<h2>Wave speed</h2>
+		<p>
+			Wave speed&nbsp;(v) describes the speed at which a wave travels through a medium. It is measured in meters per second&nbsp;(m/s) and is related to the medium's properties.<br>
+			An interesting behavior may be observed when we throw a stone on thin ice - we hear not one, but three sound. This is because sound is the slowest when travelling through air, faster when in water and the fastest in ice.
+		</p>
+		<h1>Sound, in detail</h1>
+		<h2>How is sound created?</h2>
+		<p>Sound is nothing else than air vibrating and changing pressure. Any vibrating object makes air vibrate as well and the energy is transferred to our ears, where we receive it.<br></p>
+		<h2>Sound timbre</h2>
+		<p>We all know that even sounds of the same pitch can be perceived as different. This is caused by different timbres of these sounds.<br>
+		Each sound consists of a base frequency and it's multiples. Depending on which frequency is dominant and how loud or quiet are the remeaning frequencies, we perceive a different timbre. This makes us able to i.e. distinguish instruments by sound.<br>
+		In music, we can change timbre by changing playing technique, for example by changing bowing technique on strings or by applying a mute on brass.</p>
+		<h2>Audible range</h2>
+		<p>The term "audible range" refers to the range of frequencies that can be heard by the average human ear. The typical human hearing range is from 20&nbsp;Hz to 20,000&nbsp;Hz, although this range can vary from person to person, especially with age.
+		The lower limit of 20&nbsp;Hz represents the lowest frequencies that most people can perceive as sound, while the upper limit of 20,000&nbsp;Hz represents the highest frequencies that are audible.<br>
+		Sound waves with frequencies below the audible range are called infrasound, while those above the audible range are called ultrasound. Different animals have different audible ranges, and most species can hear sounds at frequencies beyond the human range.</p>
+
+  <button id="button-start" style="height:200px;width:200px">Click me to play music</button>
+  <form action="" id="range-form">
+    <h3>Audible frequency ranges / y-scale / window x-length in seconds </h3>
+    <input type="text" id="file-name" class="form-control" placeholder="filename">
+    <input type="text" id="range-list" class="form-control" placeholder="a1-b1, a2-b2, ...">
+    <input type="text" id="graph-scale" class="form-control" value="0.75" placeholder="single float scale">
+    <input type="text" id="time-window" class="form-control" value="2" placeholder="time to pass the window">
+    <button type="submit">Update simulation</button>
+  </form>
+	</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+</html>

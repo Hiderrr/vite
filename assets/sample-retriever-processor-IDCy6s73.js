@@ -1,0 +1,1 @@
+class s extends AudioWorkletProcessor{prev_time=currentTime;sample_chunks=[];process(e,t,i){for(this.sample_chunks.push(e[0][0]);currentTime-this.prev_time>1/60;)this.port.postMessage(this.sample_chunks),this.sample_chunks.splice(0,this.sample_chunks.length),this.prev_time=currentTime;return!1}}registerProcessor("sample-retriever",s);
