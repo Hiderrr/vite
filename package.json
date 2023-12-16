@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "homepage": "https://github.com/Hiderrr/vite",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts",
-    "lint-fix": "eslint . --ext .ts --fix"
+    "lint-fix": "eslint . --ext .ts --fix",
+    "predeploy" : "npm run build",
+    "deploy" : "gh-pages -d dist"
   },
   "devDependencies": {
     "@types/audioworklet": "^0.0.52",
@@ -18,6 +21,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-unused-imports": "^3.0.0",
     "fft-windowing-ts": "^0.2.7",
+    "gh-pages": "^6.1.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.7"
   },
