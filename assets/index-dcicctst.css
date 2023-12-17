@@ -1,0 +1,41 @@
+@font-face {
+	font-family: 'Caveat';
+	src: url('https://thedoczek.github.io/fizyka/Caveat.ttf');
+	src: url('/vite/assets/Caveat-neaAiJaH.ttf');
+	font-style: italic;
+}
+
+@font-face {
+	font-family: 'Mynerve';
+	src: url('https://thedoczek.github.io/fizyka/Mynerve.ttf');
+	src: url('/vite/assets/Mynerve-iEONz2q5.ttf');
+	font-style: italic;
+}
+
+:root {
+	font-size: 160%;
+}
+
+* {
+	font-family: Caveat, Mynerve, sans;
+	font-style: italic;	
+	text-align: center;
+}
+
+body {
+	width: 75%;
+	margin-left: 12.5%;
+	margin-right: 12.5%;
+	background-image: url('/vite/assets/bg-c3sFfaQZ.png');
+	background-repeat: repeat;
+	color: black;
+}
+
+@media screen and (hover: none) {
+	:root {font-size: 320%;};
+	body {
+		width: 100%; 
+		margin-left: 0%;
+		margin-right: 0%;
+	}
+}
