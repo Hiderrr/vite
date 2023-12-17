@@ -8,7 +8,8 @@ export default defineConfig({
     format: "es"
   },
   build: {
-    target: 'esnext'
+    target: 'esnext',
+    minify: false,
   },
   base: "/vite/"
 })

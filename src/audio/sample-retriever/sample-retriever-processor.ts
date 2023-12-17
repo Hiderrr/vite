@@ -16,7 +16,7 @@ class SampleRetrieverProcessor extends AudioWorkletProcessor {
       this.prev_time = currentTime;
     }
 
-    return false;
+    return true;
 
   }
 
