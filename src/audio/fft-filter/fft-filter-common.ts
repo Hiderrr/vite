@@ -1,3 +1,5 @@
+export const FFT_SIZE = 2048;
+
 export class Range {
   start: number;
   end: number;

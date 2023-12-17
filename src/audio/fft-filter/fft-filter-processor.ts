@@ -2,8 +2,7 @@ import { transform, inverseTransform } from "../utilties/fft";
 import { Range, FftFilterMessageEventData } from "./fft-filter-common";
 import { hann } from "../utilties/fft-windowing";
 import Queue from "../utilties/queue"
-
-const FFT_SIZE = 2048;
+import { FFT_SIZE } from "./fft-filter-common";
 
 if((FFT_SIZE & (FFT_SIZE - 1)) === (FFT_SIZE - 1) && FFT_SIZE > 1) {
   throw new Error(`FFT_SIZE=${FFT_SIZE} is not a power of two!`);
@@ -89,8 +88,8 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
 
       }
 
-      if(currentTime - this.prev_time > 1 / 30) {
-        this.port.postMessage({ real: this.real, imag: this.imag });
+      if(currentTime - this.prev_time > 1 / 60) {
+        this.port.postMessage({ real: this.real.subarray(0, FFT_SIZE / 2), imag: this.imag.subarray(0, FFT_SIZE / 2) });
         this.prev_time = currentTime;
       }
       
