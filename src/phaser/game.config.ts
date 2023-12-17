@@ -27,6 +27,6 @@ export const size: {
     readonly w: number;
     readonly h: number;
 } = {
-    w: 1070,
+    w: 1200,
     h: 600
 };

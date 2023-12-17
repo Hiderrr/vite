@@ -40,6 +40,7 @@ class FFtFilterProcessor extends AudioWorkletProcessor {
 
     // treat input signal as mono (it's just easier lmao)
     if(inputs.length === 0) return false;
+    if(inputs[0].length === 0) return false;
     const input_channel = inputs[0][0];
     const n = input_channel.length;
 

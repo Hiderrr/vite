@@ -8,14 +8,14 @@ export default class AudioVis extends Phaser.Scene {
 
   audio_context!: AudioContext | null;
   canvas!: HTMLCanvasElement;
-  fft_filter!: FftFilterNode;
+  fft_filter!: FftFilterNode | null;
   sample_retriever!: SampleRetrieverNode;
   rectangles: Phaser.GameObjects.Rectangle[] = [];
   rectangles2: Phaser.GameObjects.Rectangle[] = [];
   
   sample_rate!: number;
   samples_per_group!: number;
-  group_count: number = 256;
+  group_count: number = 1;
   graph_scale: number = NaN;
   stuff_updated: boolean = false;
   ranges: number[][] = [[]]
@@ -32,24 +32,22 @@ export default class AudioVis extends Phaser.Scene {
     this.samples_per_group = Math.max(1, Math.floor(this.sample_rate * this.window_len_in_seconds / this.group_count));
   }
 
-  set_window_time_len(len: number) {
-    this.window_len_in_seconds = len;
-    this.update_samples_per_group();
-  }
-
   parse_stuff() {
     this.filename = (document.getElementById("file-name") as HTMLInputElement).value;
     this.graph_scale = parseFloat((document.getElementById("graph-scale") as HTMLInputElement).value);
     this.ranges = (document.getElementById("range-list") as HTMLInputElement).value.replace(/\s+/, "").split(",").filter(e => e != "").map(e => e.split("-").map(e => parseFloat(e)));
+    this.window_len_in_seconds = parseFloat((document.getElementById("time-window") as HTMLInputElement).value); 
     this.stuff_updated = true;
   }
 
   update_stuff() {
     if(!this.stuff_updated) return;
-    this.set_window_time_len(parseFloat((document.getElementById("time-window") as HTMLInputElement).value));
-    this.fft_filter.clear_ranges();
-    for(const range of this.ranges) {
-      this.fft_filter.add_audible_range(new Range(range[0], range[1]));
+    if(this.fft_filter) {
+      this.fft_filter.clear_ranges();
+      for(const range of this.ranges) {
+        this.fft_filter.add_audible_range(new Range(range[0], range[1]));
+      }
+      this.update_samples_per_group();
     }
   }
 
@@ -82,6 +80,8 @@ export default class AudioVis extends Phaser.Scene {
         this.playing = false;
         this.audio_context!.close().then(() => {
           document.getElementById("button-start")!.textContent = "Click me to play!";
+          this.fft_filter = null;
+          this.audio_context = null;
         })
       }
 
@@ -108,9 +108,9 @@ export default class AudioVis extends Phaser.Scene {
     for(let i = 0; i < this.group_count; i++) {
       this.rectangles.push(
         this.add.rectangle(
-            i * this.canvas.width / this.group_count,
+            i,
             this.canvas.height / 4, 
-            this.canvas.width / this.group_count, 
+            1, 
             0, 
             0xffffff
         )
@@ -142,6 +142,7 @@ export default class AudioVis extends Phaser.Scene {
         if(this.playing) {
           this.playing = false;
           await this.audio_context!.close();
+          this.fft_filter = null;
           this.audio_context = null;
           buttonEl.textContent = "Click me to play!";
         }
@@ -158,6 +159,7 @@ export default class AudioVis extends Phaser.Scene {
   update (_time: number, _delta: number): void {
 
     if(!this.sample_retriever) return;
+    if(!this.fft_filter) return;
 
     const real = this.fft_filter.real;
     const imag = this.fft_filter.imag;

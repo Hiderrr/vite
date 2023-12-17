@@ -8,6 +8,8 @@ class SampleRetrieverProcessor extends AudioWorkletProcessor {
   process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>) {
     
     // treating input as mono and posting it to the worklet
+    if(!inputs.length) return false;
+    if(!inputs[0].length) return false;
     this.sample_chunks.push(inputs[0][0]);
 
     while(currentTime - this.prev_time > 1 / REFRESH_COUNT) {
