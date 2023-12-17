@@ -6,7 +6,7 @@ import Queue from "../../audio/utilties/queue";
 
 export default class AudioVis extends Phaser.Scene {
 
-  audio_context!: AudioContext;
+  audio_context!: AudioContext | null;
   canvas!: HTMLCanvasElement;
   fft_filter!: FftFilterNode;
   sample_retriever!: SampleRetrieverNode;
@@ -15,7 +15,7 @@ export default class AudioVis extends Phaser.Scene {
   
   sample_rate!: number;
   samples_per_group!: number;
-  group_count: number = 4000;
+  group_count: number = 256;
   graph_scale: number = NaN;
   stuff_updated: boolean = false;
   ranges: number[][] = [[]]
@@ -26,7 +26,6 @@ export default class AudioVis extends Phaser.Scene {
 
   constructor () {
     super('game');
-    this.groups = new Queue(this.group_count, true);
   }
 
   update_samples_per_group() {
@@ -56,11 +55,12 @@ export default class AudioVis extends Phaser.Scene {
 
   create (): void {
 
+    this.canvas = this.sys.game.canvas;
+    this.group_count = this.canvas.width;
+    this.groups = new Queue(this.group_count, true);
     for(let i = 0; i < this.group_count; i++) {
       this.groups.push(0);
     }
-
-    this.canvas = this.sys.game.canvas;
 
     const startAudio = async () => {
 
@@ -72,7 +72,7 @@ export default class AudioVis extends Phaser.Scene {
 
       const audioBuffer = await fetch("/vite/" + this.filename)
         .then(res => res.arrayBuffer())
-        .then(buffer => this.audio_context.decodeAudioData(buffer));
+        .then(buffer => this.audio_context!.decodeAudioData(buffer));
 
       const source = this.audio_context.createBufferSource();
       source.buffer = audioBuffer;
@@ -80,7 +80,7 @@ export default class AudioVis extends Phaser.Scene {
       this.playing = true;
       source.onended = () => {
         this.playing = false;
-        this.audio_context.close().then(() => {
+        this.audio_context!.close().then(() => {
           document.getElementById("button-start")!.textContent = "Click me to play!";
         })
       }
@@ -97,37 +97,37 @@ export default class AudioVis extends Phaser.Scene {
 
       this.update_stuff();
 
-      for(let i = 0; i < this.group_count; i++) {
-        this.rectangles.push(
-          this.add.rectangle(
-              i * this.canvas.width / this.group_count,
-              this.canvas.height / 4, 
-              this.canvas.width / this.group_count, 
-              0, 
-              0xffffff
-          )
-        );
-      }
-
       for(let i = 0; i < NUM_SAMPLES; i++) {
         this.sample_retriever.sample_buff.push(0);
-      }
-
-      for(let i = 0; i < FFT_SIZE / 2; i++) {
-        this.rectangles2.push(
-          this.add.rectangle(
-              i * this.canvas.width / FFT_SIZE * 2,
-              this.canvas.height / 2, 
-              this.canvas.width / FFT_SIZE * 2, 
-              0, 
-              0xfffff0
-          )
-        );
       }
 
       source.start();
 
     };
+
+    for(let i = 0; i < this.group_count; i++) {
+      this.rectangles.push(
+        this.add.rectangle(
+            i * this.canvas.width / this.group_count,
+            this.canvas.height / 4, 
+            this.canvas.width / this.group_count, 
+            0, 
+            0xffffff
+        )
+      );
+    }
+
+    for(let i = 0; i < FFT_SIZE / 2; i++) {
+      this.rectangles2.push(
+        this.add.rectangle(
+            i * this.canvas.width / FFT_SIZE * 2,
+            this.canvas.height / 2, 
+            this.canvas.width / FFT_SIZE * 2, 
+            0, 
+            0xfffff0
+        )
+      );
+    }
 
     const login_form = document.getElementById("range-form");
     login_form?.addEventListener("submit", (e) => {
@@ -141,12 +141,13 @@ export default class AudioVis extends Phaser.Scene {
       buttonEl.addEventListener("click", async () => {
         if(this.playing) {
           this.playing = false;
-          await this.audio_context.close();
+          await this.audio_context!.close();
+          this.audio_context = null;
           buttonEl.textContent = "Click me to play!";
         }
         else {
           await startAudio();
-          this.audio_context.resume();
+          this.audio_context!.resume();
           buttonEl.textContent = "Playing...";
         }
       }, false);

@@ -1,7 +1,7 @@
 import workerUrl from "./sample-retriever-processor?worker&url"
 import Queue from "../utilties/queue";
 
-export const NUM_SAMPLES = 192000;
+export const NUM_SAMPLES = 20480;
 
 export default class SampleRetrieverNode extends AudioWorkletNode {
 
